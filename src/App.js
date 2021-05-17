@@ -16,26 +16,22 @@ function App() {
   const [report, setReport] = useState(0);
   const [result, setResult] = useState(null);
   const [reportDetails, setReportDetails] = useState(initialState);
-  const [generating, setGenerating] = useState(0);
 
   const resetReportDetails = async () => {
-    setReportDetails({ ...initialState });
-    // setReport(0);
+    setReportDetails(initialState);
   };
 
-  const genData = () => {
-    setGenerating(1);
-    setGenerating(0);
+  const genData = async () => {
     let result = [];
+    resetReportDetails();
 
     // 100 - 8KB
-    // 25000
-    for (let i = 1; i < 3; i++) {
+    // 26000 - 2MB
+    for (let i = 0; i < 26000; i++) {
       result.push(genAlphas(true)); // Alphabetical strings
       result.push(genNumbers(false)); // Real numbers
       result.push(genAlphas(false)); // Alphanumerics
       result.push(genNumbers(true)); // Integers
-
       setReportDetails({
         alphabetical: reportDetails.alphabetical + i,
         numbers: reportDetails.numbers + i,
@@ -44,7 +40,6 @@ function App() {
       });
     }
 
-    console.log(result);
     setResult(result);
   };
 
@@ -60,7 +55,7 @@ function App() {
         result += randomLetters.charAt(Math.floor(Math.random() * randomLetters.length));
       }
     } else {
-      for (var i = 0; i < randomAlphanumerics.length; i++) {
+      for (var j = 0; j < randomAlphanumerics.length; j++) {
         result += randomAlphanumerics.charAt(Math.floor(Math.random() * randomAlphanumerics.length));
       }
     }
@@ -78,7 +73,6 @@ function App() {
   };
 
   const downloadTxtFile = async () => {
-    genData();
     const element = document.createElement('a');
     const file = new Blob([result], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
@@ -91,16 +85,10 @@ function App() {
 
   useEffect(() => {
     if (result && !downloadFlag) {
-      // downloadTxtFile();
+      downloadTxtFile();
       downloadFlag = true;
     }
   }, [result, downloadFlag]);
-
-  useEffect(() => {
-    if (generating == 1) {
-      resetReportDetails();
-    }
-  }, [generating]);
 
   return (
     <div className='container'>
@@ -108,7 +96,7 @@ function App() {
         <div className='d-flex flex-column'>
           <Button
             variant='primary'
-            onClick={async () => {
+            onClick={() => {
               downloadFlag = false; // reset flag
               genData();
             }}
@@ -120,7 +108,7 @@ function App() {
             {!link ? (
               'N/A'
             ) : (
-              <a href={link} target='_blank'>
+              <a href={link} target='_blank' rel='noreferrer'>
                 {link}
               </a>
             )}
